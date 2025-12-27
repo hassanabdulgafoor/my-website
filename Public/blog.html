@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Blog</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .post-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .post-card:hover {
+            transform: translateY(-5px);
+        }
+        .post-title {
+            color: #2c3e50;
+            margin-top: 0;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .post-meta {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 20px;
+        }
+        .post-content {
+            line-height: 1.7;
+            color: #34495e;
+            font-size: 1.1em;
+        }
+        .nav {
+            background: #2c3e50;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        .nav a:hover {
+            background: #4CAF50;
+        }
+        .post-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        .btn-secondary {
+            background: #3498db;
+            color: white;
+        }
+        #new-post-form {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        textarea {
+            min-height: 150px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">🏠 Home</a>
+        <a href="/blog.html">📝 Blog</a>
+        <a href="/api/posts" target="_blank">🔗 API Data</a>
+    </div>
+    
+    <div style="max-width: 900px; margin: 0 auto; padding: 20px;">
+        <header>
+            <h1 style="color: #2c3e50;">📝 My Development Blog</h1>
+            <p style="color: #7f8c8d;">Sharing my journey learning web development, databases, and backend programming</p>
+        </header>
+        
+        <main>
+            <div style="text-align: center; margin: 30px 0;">
+                <button onclick="togglePostForm()" class="btn btn-primary" style="font-size: 18px; padding: 12px 24px;">
+                    ✏️ Write New Post
+                </button>
+            </div>
+            
+            <div id="new-post-form" style="display: none;">
+                <h3>Create New Blog Post</h3>
+                <form id="post-form">
+                    <input type="text" id="post-title" placeholder="Post Title (e.g., 'Learning React')" required>
+                    <textarea id="post-content" placeholder="Write your amazing blog post here..." required></textarea>
+                    <select id="post-author">
+                        <option value="1">👤 testuser (You)</option>
+                        <option value="2">👤 john_doe</option>
+                        <option value="3">👤 jane_smith</option>
+                        <option value="4">👤 bob_wilson</option>
+                    </select>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-primary">📤 Publish Post</button>
+                        <button type="button" onclick="togglePostForm()" class="btn" style="background: #95a5a6; color: white;">Cancel</button>
+                    </div>
+                </form>
+            </div>
+            
+            <h2>Latest Posts</h2>
+            <div id="posts-container">
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 48px;">📚</div>
+                    <p>Loading blog posts from database...</p>
+                </div>
+            </div>
+        </main>
+        
+        <footer style="margin-top: 50px; text-align: center; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 20px;">
+            <p>Powered by Node.js, Express, and PostgreSQL</p>
+            <p>Total Posts: <span id="post-count">0</span> | Total Users: <span id="user-count">4</span></p>
+        </footer>
+    </div>
+    
+    <script>
+        // Load blog posts
+        async function loadPosts() {
+            try {
+                const response = await fetch('/api/posts');
+                const data = await response.json();
+                
+                const container = document.getElementById('posts-container');
+                container.innerHTML = '';
+                
+                if (!data.posts || data.posts.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <div style="font-size: 48px;">😴</div>
+                            <h3>No posts yet</h3>
+                            <p>Be the first to write a blog post!</p>
+                        </div>`;
+                    return;
+                }
+                
+                // Update post count
+                document.getElementById('post-count').textContent = data.posts.length;
+                
+                // Display each post
+                data.posts.forEach(post => {
+                    const postDate = new Date(post.created_at);
+                    const formattedDate = postDate.toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    const postDiv = document.createElement('div');
+                    postDiv.className = 'post-card';
+                    postDiv.innerHTML = `
+                        <h2 class="post-title">${post.title}</h2>
+                        <div class="post-meta">
+                            <span>👤 ${post.username}</span>
+                            <span>📅 ${formattedDate}</span>
+                            <span>🆔 Post #${post.id}</span>
+                        </div>
+                        <div class="post-content">${post.content}</div>
+                        <div class="post-actions">
+                            <button onclick="viewPost(${post.id})" class="btn btn-secondary">
+                                👁️ View Details
+                            </button>
+                            <button onclick="sharePost(${post.id})" class="btn" style="background: #9b59b6; color: white;">
+                                🔗 Share
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(postDiv);
+                });
+                
+            } catch (error) {
+                console.error('Error loading posts:', error);
+                document.getElementById('posts-container').innerHTML = `
+                    <div class="error" style="background: #ffebee; color: #c62828; padding: 20px; border-radius: 8px;">
+                        <h3>⚠️ Failed to Load Posts</h3>
+                        <p>Error: ${error.message}</p>
+                        <p>Make sure your backend server is running.</p>
+                        <button onclick="loadPosts()" class="btn btn-primary">🔄 Try Again</button>
+                    </div>`;
+            }
+        }
+        
+        // Toggle new post form
+        function togglePostForm() {
+            const form = document.getElementById('new-post-form');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            if (form.style.display === 'block') {
+                document.getElementById('post-title').focus();
+            }
+        }
+        
+        // Create new post
+        document.getElementById('post-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const postData = {
+                title: document.getElementById('post-title').value,
+                content: document.getElementById('post-content').value,
+                user_id: document.getElementById('post-author').value
+            };
+            
+            // Show loading state
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Publishing...';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(postData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('🎉 Post published successfully!');
+                    document.getElementById('post-form').reset();
+                    togglePostForm();
+                    loadPosts(); // Refresh posts list
+                } else {
+                    alert('❌ Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('❌ Failed to publish post: ' + error.message);
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+        
+        // View single post
+        function viewPost(postId) {
+            window.open(`/api/posts/${postId}`, '_blank');
+        }
+        
+        // Share post
+        function sharePost(postId) {
+            const url = `${window.location.origin}/api/posts/${postId}`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Check out this blog post!',
+                    url: url
+                });
+            } else {
+                navigator.clipboard.writeText(url);
+                alert('📋 Post link copied to clipboard!');
+            }
+        }
+        
+        // Load posts when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPosts();
+            document.getElementById('user-count').textContent = '4'; // From your database
+        });
+    </script>
+</body>
+</html>

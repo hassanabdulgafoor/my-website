@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Website - Users</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>👥 Website Users</h1>
+        <p>Displaying data from PostgreSQL database via Node.js backend</p>
+    </header>
+    <div style="background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+    <a href="/" style="color: white; text-decoration: none; margin-right: 20px; font-weight: bold;">🏠 Home</a>
+    <a href="/blog.html" style="color: white; text-decoration: none; margin-right: 20px; font-weight: bold;">📝 Blog</a>
+    <a href="/api/users" style="color: white; text-decoration: none; font-weight: bold;" target="_blank">🔗 API</a>
+    </div>
+    <main>
+        <div class="info">
+            <p>✅ Backend: <code>http://localhost:3000</code></p>
+            <p>✅ Database: PostgreSQL with <code>users</code> table</p>
+            <button onclick="loadUsers()">🔄 Refresh Users</button>
+        </div>
+        
+        <h2>Users List</h2>
+        <div id="users-container">
+            <p>Loading users from database...</p>
+        </div>
+    </main>
+    <!-- Add this after <header> or before <main> -->
+<div class="nav">
+    <a href="/">🏠 Home</a>
+    <a href="/blog.html">📝 Blog</a>
+</div>
+    
+    <footer>
+        <p>Built with Node.js, Express, PostgreSQL</p>
+    </footer>
+    
+    <script src="app.js"></script>
+</body>
+</html>
